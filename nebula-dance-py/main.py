@@ -53,6 +53,10 @@ def main():
     img_for_export = cv2.resize(a_image, (out_W, out_H), interpolation=cv2.INTER_AREA)
     target_bitrate = '8M'
 
+
+    particle_img = Image.open('star2.png').convert('RGBA')
+    particle_img = np.array(particle_img)
+
     gray = rgb2gray(img_for_export)
     coords = peak_local_max(gray, min_distance=2, threshold_abs=20 / 255.0)
     np.random.shuffle(coords)
@@ -77,9 +81,9 @@ def main():
     praticles_rotate = -3 # 粒子旋转角度
 
     fade = 1000 # 淡入淡出时间 ms
+    duration = 15
 
     def make_frame(t):
-        duration = 15
         angle = bg_rotate * (t / duration)
         drift_z = bg_dir_z * bg_speed * t * 0.02
         init_z = bg_offset_z
@@ -105,9 +109,36 @@ def main():
             y_rot = x0 * sin_theta + y0 * cos_theta
             x2d = int(out_W / 2 + x_rot * scale_p + t * speed * dx * 150 * scale_exp)
             y2d = int(out_H / 2 + y_rot * scale_p + t * speed * dy * 150 * scale_exp)
-            size = int(np.interp(scale_p, [0.1, 1.0], [p_min, p_max]) * scale_exp)  
+            # size = int(np.interp(scale_p, [0.1, 1.0], [p_min, p_max]) * scale_exp)  
+
+            # 计算粒子大小（9-25之间随机）
+            size = int(np.interp(np.random.random(), [0, 1], [9, 16]))
             if 0 <= x2d < out_W and 0 <= y2d < out_H:
-                cv2.circle(frame, (x2d, y2d), size, (255, 255, 255), -1)
+                # 计算ROI区域
+                half_size = size // 2
+                y1, y2 = max(0, y2d-half_size), min(out_H, y2d+half_size + (size % 2))
+                x1, x2 = max(0, x2d-half_size), min(out_W, x2d+half_size + (size % 2))
+                
+                # 计算实际ROI尺寸
+                roi_height = y2 - y1
+                roi_width = x2 - x1
+                
+                if roi_height > 0 and roi_width > 0:
+                    # 调整粒子图片大小以精确匹配ROI尺寸
+                    resized_particle = cv2.resize(particle_img, (roi_width, roi_height), 
+                                            interpolation=cv2.INTER_AREA)
+                    
+                    # 获取当前帧的ROI区域并转换为RGBA
+                    roi = frame[y1:y2, x1:x2].copy()
+                    roi = cv2.cvtColor(roi, cv2.COLOR_BGR2RGBA)
+                    
+                    # Alpha混合
+                    alpha = resized_particle[:, :, 3:4] / 255.0  # 保持维度为(h,w,1)
+                    blended = (alpha * resized_particle[:, :, :3] + 
+                            (1 - alpha) * roi[:, :, :3])
+                    
+                    # 转换回BGR并放回原图
+                    frame[y1:y2, x1:x2] = cv2.cvtColor(blended.astype(np.uint8), cv2.COLOR_RGBA2BGR)
 
         alpha = 1.0
         fade_s = fade / 1000.0
@@ -118,7 +149,7 @@ def main():
         frame = (frame * alpha).astype(np.uint8)
         return frame
 
-    clip = VideoClip(make_frame, duration=15, )
+    clip = VideoClip(make_frame, duration=duration, )
     clip.write_videofile('output.mp4', fps=export_fps, bitrate=target_bitrate, threads=7)
 
 
