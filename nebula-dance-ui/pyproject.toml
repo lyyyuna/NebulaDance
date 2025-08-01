@@ -1,0 +1,10 @@
+[project]
+name = "nebula-dance-ui"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10.11"
+dependencies = [
+    "pyinstaller>=6.14.2",
+    "pyside6>=6.9.1",
+]
