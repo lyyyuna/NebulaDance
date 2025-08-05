@@ -7,7 +7,7 @@ on:
       - main
 
 jobs:
-  release-darwin-amd64:
+  release-darwin-intel-amd64:
     name: python
     runs-on: macos-13-latest
 
@@ -42,6 +42,42 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  release-darwin-arm-amd64:
+    name: python
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "Set up Python"
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: ".python-version"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Install dependencies
+        run: |
+          uv sync
+      
+      - name: Build
+        run: |
+          .venv/bin/pyinstaller --name='nebula-dance' --add-data='main.qml:.' --add-data='star2.png:.' main.py
+
+      - name: Archive artifact
+        run: |
+          cd dist
+          tar -czvf nebula-dance-arm.tar.gz nebula-dance
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/nebula-dance-arm.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
   release-windows-amd64:
     name: python
     runs-on: windows-latest
@@ -63,7 +99,7 @@ jobs:
       
       - name: Build
         run: |
-          .venv/bin/pyinstaller --name='nebula-dance' --add-data='main.qml:.' --add-data='star2.png:.' main.py
+          .venv\\bin\\pyinstaller.exe --name='nebula-dance' --add-data='main.qml:.' --add-data='star2.png:.' main.py
 
       - name: Upload to Release
         uses: softprops/action-gh-release@v1
