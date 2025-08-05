@@ -4,7 +4,7 @@ from PySide6.QtQuick import QQuickImageProvider
 from PySide6.QtGui import QImage, QPixmap
 import render
 import cv2
-
+from utils import resource_path
 
 
 class RenderThread(QRunnable):
@@ -102,7 +102,7 @@ class Backend(QObject):
     @Slot(str)
     def load_image(self, path):
         self.image_path = path
-        self.render = render.Render(image_path=self.image_path, particle_image_path='star2.png')
+        self.render = render.Render(image_path=self.image_path, particle_image_path=resource_path('star2.png'))
         self.render.load_params(**self.params)
         self.paramsLoaded.emit()
         self.render_first_end_frame()
