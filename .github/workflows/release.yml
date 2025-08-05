@@ -25,3 +25,7 @@ jobs:
       - name: Install dependencies
         run: |
           uv sync
+      
+      - name: Build
+        run: |
+          ./venv/bin/pyinstaller --add-data='main.qml:.' --add-data='star2.png:.' main.py
