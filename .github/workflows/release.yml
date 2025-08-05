@@ -33,7 +33,7 @@ jobs:
       - name: Archive artifact
         run: |
           cd dist
-          tar -czvf nebula-dance-intel.tar.gz main
+          tar -czvf nebula-dance-intel.tar.gz nebula-dance
 
       - name: Upload to Release
         uses: softprops/action-gh-release@v1
