@@ -101,6 +101,7 @@ jobs:
         run: |
           .\.venv\Scripts\activate
           pyinstaller --name='nebula-dance' --add-data='main.qml:.' --add-data='star2.png:.' main.py
+          cp dist/nebula-dance.exe dist/nebula-dance-windows.exe
 
       - name: Upload to Release
         uses: softprops/action-gh-release@v1
