@@ -1,0 +1,27 @@
+name: nebula-dance-release
+on:
+  release:
+    types: [published,edited]
+  push:
+    branches:
+      - main
+
+jobs:
+  release-darwin-amd64:
+    name: python
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "Set up Python"
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: ".python-version"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Install dependencies
+        run: |
+          uv sync
