@@ -28,4 +28,6 @@ jobs:
       
       - name: Build
         run: |
+          ls -al
+          uv venv
           ./venv/bin/pyinstaller --add-data='main.qml:.' --add-data='star2.png:.' main.py
