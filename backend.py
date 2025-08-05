@@ -4,7 +4,7 @@ from PySide6.QtQuick import QQuickImageProvider
 from PySide6.QtGui import QImage, QPixmap
 import render
 import cv2
-from utils import resource_path
+from utils import resource_path, handle_file_url
 
 
 class RenderThread(QRunnable):
@@ -101,7 +101,7 @@ class Backend(QObject):
 
     @Slot(str)
     def load_image(self, path):
-        self.image_path = path
+        self.image_path = handle_file_url(path)
         self.render = render.Render(image_path=self.image_path, particle_image_path=resource_path('star2.png'))
         self.render.load_params(**self.params)
         self.paramsLoaded.emit()
@@ -109,7 +109,7 @@ class Backend(QObject):
 
     @Slot(str)
     def load_params(self, path):
-        with open(path) as f:
+        with open(handle_file_url(path)) as f:
             params = f.read()
         self.params = json.loads(params)
         self.paramsLoaded.emit()
@@ -119,7 +119,7 @@ class Backend(QObject):
 
     @Slot(str)
     def save_params(self, path):
-        with open(path, 'w') as f:
+        with open(handle_file_url(path), 'w') as f:
             f.write(json.dumps(self.params))
 
     @Slot()

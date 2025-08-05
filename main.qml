@@ -348,7 +348,7 @@ ApplicationWindow {
             "图像文件 (*.png *.jpg *.jpeg)",
         ]
         onAccepted: {
-            root.imagePath = fileDialog.selectedFile.toString().replace("file://", "")
+            root.imagePath = fileDialog.selectedFile.toString()
             backend.load_image(root.imagePath)
             root.height = 800
         }
@@ -362,7 +362,7 @@ ApplicationWindow {
             "视频文件 (*.mp4)",
         ]
         onAccepted: {
-            root.videoPath = videoDialog.selectedFile.toString().replace("file://", "")
+            root.videoPath = videoDialog.selectedFile.toString()
             backend.render_video(root.videoPath)
             processingOverlay.visible = true
         }
@@ -376,7 +376,7 @@ ApplicationWindow {
             "参数文件 (*.json)",
         ]
         onAccepted: {
-            backend.load_params(paramsDialog.selectedFile.toString().replace("file://", ""))
+            backend.load_params(paramsDialog.selectedFile.toString())
         }
     }
 
@@ -388,7 +388,7 @@ ApplicationWindow {
             "参数文件 (*.json)",
         ]
         onAccepted: {
-            backend.save_params(paramsSaveDialog.selectedFile.toString().replace("file://", ""))
+            backend.save_params(paramsSaveDialog.selectedFile.toString())
         }
     }
 
