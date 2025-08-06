@@ -82,7 +82,6 @@ class Backend(QObject):
         super().__init__()
         self.image_path = None
         self.image_processor = image_processor
-        self._default_params_file = 'nebula-dance-default-params.json'
         self.thread_pool = QThreadPool()
         self.params = {
             "z_init": 3,
@@ -96,8 +95,6 @@ class Backend(QObject):
             "particle_speed": 3,
             "duration": 15,
         }
-        with open(self._default_params_file, 'w') as f:
-            json.dump(self.params, f)
 
     @Slot(str)
     def load_image(self, path):

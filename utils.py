@@ -4,15 +4,24 @@ from urllib.parse import urlparse
 from pathlib import Path
 
 def resource_path(relative_path):
-    """ 获取资源的绝对路径，适用于开发环境和PyInstaller打包后环境 """
-    if hasattr(sys, '_MEIPASS'):
-        # PyInstaller打包后的临时文件夹
-        base_path = sys._MEIPASS
-    else:
-        # 开发环境下的当前目录
-        base_path = os.path.abspath(".")
-
-    return os.path.join(base_path, relative_path)
+    """ 适配 macOS App Bundle 的资源路径 """
+    if getattr(sys, 'frozen', False):
+        # 1. 先尝试 _MEIPASS（PyInstaller 临时目录）
+        if hasattr(sys, '_MEIPASS'):
+            base_path = sys._MEIPASS
+            path = os.path.join(base_path, relative_path)
+            if os.path.exists(path):
+                return path
+        
+        # 2. 尝试 Contents/Resources（macOS App Bundle）
+        app_bundle_path = os.path.dirname(os.path.dirname(os.path.abspath(sys.executable)))
+        resources_path = os.path.join(app_bundle_path, 'Resources')
+        path = os.path.join(resources_path, relative_path)
+        if os.path.exists(path):
+            return path
+    
+    # 3. 默认返回当前目录（开发环境）
+    return os.path.join(os.path.abspath("."), relative_path)
 
 
 def handle_file_url(file_url):

@@ -4,8 +4,8 @@ on:
     types: [published,edited]
 
 jobs:
-  release-darwin-arm-amd64:
-    name: python
+  release-darwin-arm:
+    name: darwin-arm
     runs-on: macos-latest
 
     steps:
@@ -25,23 +25,22 @@ jobs:
       
       - name: Build
         run: |
-          .venv/bin/pyinstaller --name='nebula-dance' --add-data='main.qml:.' --add-data='star2.png:.' main.py
+          .venv/bin/pyinstaller nebula-dance.spec
 
       - name: Archive artifact
         run: |
           cd dist
-          tar -czvf nebula-dance-arm.tar.gz nebula-dance
+          tar -czvf nebula-dance-darwin-arm.tar.gz nebula-dance
 
       - name: Upload to Release
         uses: softprops/action-gh-release@v1
         with:
-          files: dist/nebula-dance-arm.tar.gz
+          files: dist/nebula-dance-darwin-arm.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-
   release-windows-amd64:
-    name: python
+    name: windows
     runs-on: windows-latest
 
     steps:
@@ -62,7 +61,7 @@ jobs:
       - name: Build
         run: |
           .\.venv\Scripts\activate
-          pyinstaller --name='nebula-dance' --add-data='main.qml:.' --add-data='star2.png:.' main.py
+          pyinstaller nebula-dance.spec
           Compress-Archive -Path dist\nebula-dance\* -DestinationPath dist\nebula-dance-windows.zip
 
       - name: Upload to Release
