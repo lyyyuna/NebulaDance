@@ -4,20 +4,26 @@ block_cipher = None
 
 # 移除 WebEngine 相关文件的函数
 def remove_webengine_files():
-    # 要排除的二进制文件关键字
+    # 要排除的二进制文件关键字 (适用于不同平台)
     webengine_binaries = [
         'QtWebEngine',
         'QtWebView',
         'QtWebChannel',
-        'WebEngine.framework',
-        'libQt6WebEngine'
+        'WebEngine.framework',  # macOS
+        'libQt6WebEngine',      # Linux
+        'Qt6WebEngine',         # Windows/Linux
+        'webengine'             # 通用匹配
     ]
     
-    # 要排除的资源文件路径
+    # 要排除的资源文件路径 (适用于不同平台)
     webengine_resources = [
         'PySide6/Qt/resources',
         'PySide6/Qt/translations/qtwebengine',
-        'PySide6/Qt/lib/QtWebEngine'
+        'PySide6/Qt/lib/QtWebEngine',
+        'PySide6/Qt/plugins/webengine',     # Windows/Linux
+        'PySide6/Qt/lib/QtWebView',        # macOS
+        'PySide6/Qt/lib/QtWebEngineCore',  # 通用
+        'webengine'                        # 通用匹配
     ]
     
     return webengine_binaries, webengine_resources
@@ -50,14 +56,18 @@ a = Analysis(
 # 关键步骤 1: 从收集的二进制文件中移除 WebEngine 组件
 filtered_binaries = []
 for b in a.binaries:
-    if not any(key in b[0] for key in webengine_bins):
+    # 转换为小写进行匹配，提高跨平台兼容性
+    binary_path_lower = b[0].lower()
+    if not any(key.lower() in binary_path_lower for key in webengine_bins):
         filtered_binaries.append(b)
 a.binaries = filtered_binaries
 
 # 关键步骤 2: 从收集的数据文件中移除 WebEngine 资源
 filtered_datas = []
 for d in a.datas:
-    if not any(key in d[0] for key in webengine_ress):
+    # 转换为小写进行匹配，提高跨平台兼容性
+    data_path_lower = d[0].lower()
+    if not any(key.lower() in data_path_lower for key in webengine_ress):
         filtered_datas.append(d)
 a.datas = filtered_datas
 
@@ -91,12 +101,14 @@ coll = COLLECT(
     upx_exclude=[],
     name='nebula-dance',
     # 添加文件过滤回调
-    filter=lambda *args: None if any(key in args[0] for key in webengine_bins + webengine_ress) else args
+    filter=lambda *args: None if any(key.lower() in args[0].lower() for key in webengine_bins + webengine_ress) else args
 )
 
-app = BUNDLE(
-    coll,
-    name='nebula-dance.app',
-    icon=None,
-    bundle_identifier='com.lyyyuna.www',
-)
+import sys
+if sys.platform == 'darwin':  # macOS
+    app = BUNDLE(
+        coll,
+        name='nebula-dance.app',
+        icon=None,
+        bundle_identifier='com.lyyyuna.www',
+    )
