@@ -68,6 +68,30 @@ ApplicationWindow {
                     width: parent.width
                     spacing: 10
 
+                    // 在并排的图片展示区域上方添加文字说明
+                    RowLayout {
+                        Layout.preferredWidth: parent.width
+                        spacing: 10
+                        
+                        // 左侧文字说明
+                        Text {
+                            Layout.preferredWidth: parent.width / 2 - parent.spacing / 2
+                            text: "第一帧预览"
+                            color: "#e0e0e0"
+                            font.pixelSize: 14
+                            horizontalAlignment: Text.AlignHCenter
+                        }
+                        
+                        // 右侧文字说明
+                        Text {
+                            Layout.preferredWidth: parent.width / 2 - parent.spacing / 2
+                            text: "最后一帧预览"
+                            color: "#e0e0e0"
+                            font.pixelSize: 14
+                            horizontalAlignment: Text.AlignHCenter
+                        }
+                    }
+
                     // 并排的图片展示区域
                     RowLayout {
                         Layout.preferredWidth: parent.width
